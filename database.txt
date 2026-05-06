@@ -21,6 +21,7 @@ CREATE TABLE jobs (
     location VARCHAR(100),
     salary VARCHAR(50),
     category VARCHAR(100),
+    job_state ENUM('Active', 'Deactive') NOT NULL,
     employer_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
