@@ -1,0 +1,49 @@
+Job & Skill Development Platform (With AI Integration) 
+
+1) Features -  
+
+Job Seekers 
+● Create profiles 
+● Upload resumes 
+● Search & apply for jobs 
+
+Employers 
+● Post job openings  
+● Shortlist candidates 
+
+Trainers 
+● Upload courses and conduct mentorship 
+
+Admin 
+● Manage users jobs, and system analytics 
+
+2) Application Components 
+
+Web App (React) 
+● Job listing, filtering, and applications. 
+● Employer dashboard to manage job postings. 
+● Learning module with training materials. 
+
+Mobile App (React Native) 
+● Job search & applications. 
+● Notifications for new jobs & application status. 
+● Course access and progress tracking. 
+
+Backend (ExpressJs) 
+● REST APIs for user authentication, job listings, applications, and training modules. 
+● MySQL database for data storage. 
+
+Deployment 
+● Backend: AWS EC2 
+● Database: AWS RDS (MySQL) 
+● Web App: AWS EC2 + Nginx 
+
+3) AI Integration 
+
+Basic Resume Parsing 
+● Extract skills and experience using IBM Watson or OpenAI API. 
+● Suggest jobs based on extracted skills. 
+
+Chatbot for FAQs 
+● Simple AI-powered chatbot using Dialogflow or Botpress. 
+● Helps job seekers understand job postings.

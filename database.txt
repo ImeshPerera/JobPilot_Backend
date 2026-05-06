@@ -1,0 +1,96 @@
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('JOB_SEEKER', 'EMPLOYER', 'TRAINER', 'ADMIN') NOT NULL,
+    user_state ENUM('Active', 'Deactive') NOT NULL,
+    user_image VARCHAR(255),
+    bio TEXT,
+    skills TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE jobs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(150) NOT NULL,
+    company_name VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    requirements TEXT,
+    location VARCHAR(100),
+    salary VARCHAR(50),
+    category VARCHAR(100),
+    employer_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (employer_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE applications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    job_id INT NOT NULL,
+    resume_url VARCHAR(255),
+    status ENUM('PENDING', 'SHORTLISTED', 'REJECTED', 'ACCEPTED') DEFAULT 'PENDING',
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (job_id) REFERENCES jobs(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    thumbnail_url VARCHAR(255),
+    video_url VARCHAR(255),
+    trainer_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (trainer_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE resumes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    file_url VARCHAR(255),
+    extracted_skills TEXT,
+    extracted_experience TEXT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE saved_jobs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    job_id INT NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (job_id) REFERENCES jobs(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE course_enrollments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    course_id INT NOT NULL,
+    progress INT DEFAULT 0,
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (course_id) REFERENCES courses(id)
+    ON DELETE CASCADE
+);
