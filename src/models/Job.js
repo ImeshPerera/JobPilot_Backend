@@ -2,10 +2,10 @@ const db = require("../config/db");
 
 class Job {
   static async create(jobData) {
-    const { title, company_name, description, requirements, location, salary, category, employer_id } = jobData;
+    const { title, company_name, description, requirements, location, salary, category, employer_id, job_state = 'Active' } = jobData;
     const [result] = await db.query(
-      "INSERT INTO jobs (title, company_name, description, requirements, location, salary, category, employer_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [title, company_name, description, requirements, location, salary, category, employer_id]
+      "INSERT INTO jobs (title, company_name, description, requirements, location, salary, category, employer_id, job_state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [title, company_name, description, requirements, location, salary, category, employer_id, job_state]
     );
     return result.insertId;
   }

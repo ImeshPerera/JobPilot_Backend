@@ -35,7 +35,7 @@ Backend (ExpressJs)
 
 Deployment 
 ● Backend: AWS EC2 
-● Database: AWS RDS (MySQL) 
+● Database: (MySQL) 
 ● Web App: AWS EC2 + Nginx 
 
 3) AI Integration 
@@ -47,3 +47,11 @@ Basic Resume Parsing
 Chatbot for FAQs 
 ● Simple AI-powered chatbot using Dialogflow or Botpress. 
 ● Helps job seekers understand job postings.
+
+
+Role                                     | Email                                    | Password
+  ------------------------------------------|------------------------------------------|-----------------------------------------
+   Admin                                    | admin@jobpilot.com                       | admin123
+   Employer                                 | employer@jobpilot.com                    | employer123
+   Trainer                                  | trainer@jobpilot.com                     | trainer123
+   Job Seeker                               | seeker@jobpilot.com                      | seeker123
