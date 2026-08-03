@@ -2,10 +2,10 @@ const db = require("../config/db");
 
 class User {
   static async create(userData) {
-    const { first_name, last_name, email, password, role } = userData;
+    const { first_name, last_name, email, password, role, user_state = 'Active' } = userData;
     const [result] = await db.query(
-      "INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)",
-      [first_name, last_name, email, password, role]
+      "INSERT INTO users (first_name, last_name, email, password, role, user_state) VALUES (?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, email, password, role, user_state]
     );
     return result.insertId;
   }
