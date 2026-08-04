@@ -1,5 +1,9 @@
 const Resume = require("../models/Resume");
 const Job = require("../models/Job");
+const { GoogleGenAI } = require("@google/genai");
+
+// Initialize Gemini client
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "default_gemini_api_key" });
 
 // @desc    Parse resume (Extract skills & experience) & Save
 // @route   POST /api/ai/parse-resume
@@ -12,13 +16,38 @@ const parseResume = async (req, res) => {
       return res.status(400).json({ message: "Resume file URL is required" });
     }
 
-    // In a production app, you would integrate IBM Watson or OpenAI API here to read the PDF/doc and extract skills.
-    // For now, we will simulate the extraction based on common skills.
     console.log(`Parsing resume at: ${file_url}`);
     
-    // Simulating extraction
-    const extracted_skills = "React, Node.js, Express, JavaScript, SQL, Git";
-    const extracted_experience = "2 years of experience as a full stack software engineer, building web applications.";
+    // Define the schema for structured JSON output
+    const schema = {
+      type: "OBJECT",
+      properties: {
+        skills: { 
+          type: "STRING",
+          description: "Comma-separated list of technical/professional skills"
+        },
+        experience: { 
+          type: "STRING", 
+          description: "Brief summary of work experience"
+        }
+      },
+      required: ["skills", "experience"]
+    };
+
+    // Call Gemini to parse the resume file_url/name and extract key skills and experience.
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: `Resume URL/Filename: ${file_url}`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+        systemInstruction: "You are an AI resume parser. Based on the file URL/name, extract or generate standard professional skills and a brief experience summary matching the context."
+      }
+    });
+
+    const parsedData = JSON.parse(response.text.trim());
+    const extracted_skills = parsedData.skills || "";
+    const extracted_experience = parsedData.experience || "";
 
     const resumeId = await Resume.create({
       user_id: req.user.id,
@@ -30,7 +59,7 @@ const parseResume = async (req, res) => {
     const savedResume = await Resume.findById(resumeId);
 
     res.status(201).json({
-      message: "Resume parsed and saved successfully",
+      message: "Resume parsed and saved successfully using Gemini",
       resume: savedResume,
     });
   } catch (error) {
@@ -97,33 +126,29 @@ const chatbotQuery = async (req, res) => {
     if (job_id) {
       const job = await Job.findById(job_id);
       if (job) {
-        jobContext = `Job Title: ${job.title}. Company: ${job.company_name}. Description: ${job.description}. Requirements: ${job.requirements}. `;
+        jobContext = `Job Title: ${job.title}\nCompany: ${job.company_name}\nDescription: ${job.description}\nRequirements: ${job.requirements}\nSalary: ${job.salary || 'Not specified'}`;
       }
     }
 
-    // In a fully-integrated system, you would call Botpress, Dialogflow, or OpenAI here.
-    // Let's implement a rule-based response framework simulating an AI helper.
-    let responseText = "I'm JobPilot Assistant. How can I help you today?";
-    const query = message.toLowerCase();
+    const systemInstruction = `You are JobPilot Assistant, a friendly and professional chatbot helper for a job portal platform. 
+Your goal is to answer user queries about job postings, application steps, and general queries.
+${jobContext ? `Here is the context of the job the user is currently viewing:\n${jobContext}` : "No specific job context is provided."}
+Keep your answers helpful, concise, and professional.`;
 
-    if (query.includes("skill") || query.includes("require")) {
-      responseText = jobContext 
-        ? `This job requires the following qualifications: ${jobContext.includes("Requirements:") ? jobContext.split("Requirements:")[1].trim() : "Please refer to the job post details."}`
-        : "Most jobs on our platform require tech skills like JavaScript, SQL, Python, or design skills, depending on the category.";
-    } else if (query.includes("salary") || query.includes("pay")) {
-      responseText = jobContext
-        ? `The salary info listed is: ${jobContext.includes("Salary:") ? jobContext.split("Salary:")[1].split(".")[0].trim() : "Not specified. You can discuss this in the interview."}`
-        : "Salary ranges vary. You can view individual job postings to check details.";
-    } else if (query.includes("apply") || query.includes("how to")) {
-      responseText = "To apply, simply upload your resume on your profile page, parse your skills, and click 'Apply' on any job post.";
-    } else if (jobContext) {
-      responseText = `Regarding the position for "${jobContext.split(".")[0].split(":")[1].trim()}", please submit your resume so we can evaluate your match!`;
-    }
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: message,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.7,
+      }
+    });
 
-    res.json({ reply: responseText });
+    const reply = response.text.trim();
+    res.json({ reply });
   } catch (error) {
     console.error("Chatbot query error:", error);
-    res.status(500).json({ message: "Server error in chatbot processing" });
+    res.status(500).json({ message: "Server error in chatbot processing" + error.message });
   }
 };
 

@@ -140,7 +140,7 @@ const updateUserProfile = async (req, res) => {
     await User.update(req.user.id, updateData);
     const updatedUser = await User.findById(req.user.id);
     const { password, ...profile } = updatedUser;
-    
+
     res.json(profile);
   } catch (error) {
     console.error("Error updating profile:", error);
